@@ -103,45 +103,6 @@
             font-size: 1.5em; /* Tamaño del icono */
             margin-bottom: 3px; /* Espacio entre icono y texto */
         }
-
-        /* Estilos para el botón flotante dinámico */
-        .floating-button-container {
-            position: fixed; /* Posición fija en la ventana */
-            top: 75px;    /* Ajustado para posicionar en la parte superior, debajo del navbar */
-            left: 10px;     /* 20px desde la izquierda */
-            z-index: 1000;   /* Asegura que esté por encima de otros elementos */
-            /* La clase 'hidden' se gestiona por JS */
-        }
-        .floating-button {
-            display: flex; /* Para centrar el icono */
-            align-items: center;
-            justify-content: center;
-            /* ¡Importante! Usamos !important para asegurar que estos estilos se apliquen */
-            width: 60px !important;     /* Ancho del botón */
-            height: 60px !important;    /* Alto del botón */
-            border-radius: 50% !important; /* Lo hace circular */
-            background-color: #FFA500 !important; /* Color anaranjado, ¡importante! */
-            color: white;    /* Color del icono/texto por defecto */
-            font-size: 24px; /* Tamaño del icono */
-            transition: transform 0.3s ease, background-color 0.3s ease; /* Transiciones suaves al interactuar */
-            text-decoration: none; /* Elimina el subrayado del enlace */
-        }
-        .floating-button:hover {
-            transform: scale(1.1); /* Agranda ligeramente el botón al pasar el ratón */
-        }
-
-        /* NUEVO: Estilos para el botón deshabilitado */
-        .floating-button.disabled {
-            background-color: #cccccc !important; /* Color gris */
-            cursor: not-allowed !important; /* Cursor de "no permitido" */
-            pointer-events: none !important; /* Deshabilita clics e interacciones del mouse */
-            opacity: 0.7; /* Ligeramente transparente para indicar que está deshabilitado */
-        }
-        /* Asegura que el hover no tenga efecto cuando está deshabilitado */
-        .floating-button.disabled:hover {
-            transform: scale(1) !important; /* No escalar al pasar el ratón */
-            background-color: #cccccc !important; /* Mantener el color gris */
-        }
     </style>
 
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -220,13 +181,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Contenedor del botón flotante (inicialmente oculto por CSS, mostrado por JS si aplica) -->
-    <div class="floating-button-container hidden" id="floatingButtonContainer">
-        <a href="#" id="floatingButton" class="floating-button">
-            <i id="floatingButtonIcon" class=""></i>
-        </a>
     </div>
 
     <script src="{{ url_for('static', filename='js/timezone_converter.js') }}"></script>
@@ -346,107 +300,6 @@
                 showManualInstallInstructionsButton.style.display = 'none';
             }
         }
-
-        // Lógica para el botón flotante dinámico
-        document.addEventListener('DOMContentLoaded', function() {
-            const floatingButtonContainer = document.getElementById('floatingButtonContainer');
-            const floatingButton = document.getElementById('floatingButton');
-            const floatingButtonIcon = document.getElementById('floatingButtonIcon');
-
-            // DEBUG: Verificar si los elementos se encontraron
-            console.log('DEBUG: Elementos del botón encontrados:');
-            console.log('DEBUG: floatingButtonContainer:', floatingButtonContainer);
-            console.log('DEBUG: floatingButton:', floatingButton);
-            console.log('DEBUG: floatingButtonIcon:', floatingButtonIcon);
-
-
-            async function fetchButtonConfig() {
-                console.log('Iniciando fetchButtonConfig para botón flotante dinámico...');
-                try {
-                    // Realiza una solicitud al backend para obtener la configuración del botón
-                    const response = await fetch('/get_btn_config');
-                    if (!response.ok) {
-                        console.error('Error en la respuesta del servidor al obtener la configuración del botón:', response.status, response.statusText);
-                        // Si hay un error en la respuesta, ocultamos el botón
-                        floatingButtonContainer.classList.add('hidden');
-                        console.log('DEBUG: Botón flotante oculto debido a un error en la respuesta del servidor (HTTP error).');
-                        return; // Salir de la función para no ejecutar la lógica de visibilidad
-                    }
-                    const config = await response.json(); // Parsea la respuesta JSON
-                    console.log('DEBUG: Configuración del botón recibida:', config);
-
-                    // Verifica si el botón debe ser visible según la configuración general
-                    // La propiedad 'is_visible' debe venir del backend, si no, asumimos que no es visible.
-                    const isVisibleConfigured = config.is_visible !== undefined ? config.is_visible : false;
-                    console.log('DEBUG: isVisibleConfigured =', isVisibleConfigured);
-
-                    // Estas variables son inyectadas por Jinja2 en el HTML
-                    // Asegúrate de que tu Flask app esté pasando estas variables a la plantilla si no están disponibles globalmente
-                    const loggedIn = {{ 'true' if session.get('logged_in', False) else 'false' }};
-                    const userRole = "{{ session.get('is_superuser', False) | tojson }}"; // 'true' o 'false' como string para superusuario
-                    console.log('DEBUG: Estado de sesión: loggedIn =', loggedIn, ', userRole (is_superuser) =', userRole);
-                    console.log('DEBUG: Visibilidad configurada en backend (visibility_state) =', config.visibility_state);
-
-                    let showButton = false; // Bandera para determinar si mostrar el botón
-
-                    // Lógica de visibilidad basada en el estado configurado en crear_btns.html
-                    if (config.visibility_state === 'all') {
-                        // Visible para todos (incluidos no registrados)
-                        showButton = true;
-                        console.log('DEBUG: Condición de visibilidad "all" cumplida. showButton = true.');
-                    } else if (config.visibility_state === 'regular' && loggedIn) { // 'regular' para usuarios logeados
-                        // Visible solo para usuarios registrados (regulares o superusuarios)
-                        showButton = true;
-                        console.log('DEBUG: Condición de visibilidad "regular" cumplida y usuario logeado. showButton = true.');
-                    } else if (config.visibility_state === 'superuser' && loggedIn && userRole === 'true') { // 'superuser' para superusuarios
-                        // Visible solo para superusuarios registrados
-                        showButton = true;
-                        console.log('DEBUG: Condición de visibilidad "superuser" cumplida y usuario logeado como superusuario. showButton = true.');
-                    } else if (config.visibility_state === 'disabled') {
-                        // Si está deshabilitado, no se muestra y se aplica la clase disabled
-                        showButton = false;
-                        console.log('DEBUG: Condición de visibilidad "disabled" cumplida. showButton = false.');
-                    } else {
-                        console.log('DEBUG: Ninguna condición de visibilidad se cumplió para el estado:', config.visibility_state);
-                    }
-                    
-                    console.log('DEBUG: Valor final de showButton antes de aplicar clase:', showButton);
-
-                    // Si el botón debe mostrarse, actualiza sus propiedades
-                    if (showButton) {
-                        floatingButtonContainer.classList.remove('hidden'); // Muestra el contenedor
-                        floatingButton.classList.remove('disabled'); // Asegura que no tenga la clase disabled
-                        floatingButton.href = config.link || '#'; // Establece el enlace, con un fallback
-                        
-                        // Asigna el color anaranjado y el icono de información por defecto
-                        floatingButton.style.backgroundColor = '#FFA500'; // Color anaranjado
-                        floatingButtonIcon.className = ''; // Limpia las clases de icono existentes
-                        floatingButtonIcon.classList.add('fa-solid', 'fa-circle-info'); // Icono de información
-                        floatingButtonIcon.style.color = 'white'; // Color blanco por defecto para el icono
-                        
-                        // DEBUG: Verificar dimensiones y font-family del icono
-                        console.log('DEBUG: Dimensiones del botón flotante:', floatingButton.offsetWidth, 'x', floatingButton.offsetHeight);
-                        console.log('DEBUG: Font-family del icono:', window.getComputedStyle(floatingButtonIcon).fontFamily);
-                        console.log('DEBUG: floatingButtonIcon className after update:', floatingButtonIcon.className);
-                        console.log('DEBUG: Botón flotante mostrado y configurado dinámicamente con color naranja e icono de información.');
-                    } else {
-                        // Si showButton es false (incluyendo el estado 'disabled')
-                        floatingButtonContainer.classList.add('hidden'); // Oculta el contenedor
-                        floatingButton.classList.add('disabled'); // Añade la clase disabled para estilos de gris y no-clic
-                        console.log('DEBUG: Botón flotante oculto porque las condiciones de visibilidad no se cumplen o está deshabilitado.');
-                    }
-                } catch (error) {
-                    console.error('DEBUG: Error al obtener o aplicar la configuración del botón (catch block):', error);
-                    // En caso de error, el botón se ocultará debido a la clase 'hidden' inicial
-                    floatingButtonContainer.classList.add('hidden');
-                    floatingButton.classList.add('disabled'); // Asegura que también se vea deshabilitado si hay un error de carga
-                    console.log('DEBUG: Botón flotante oculto debido a un error en la obtención/aplicación de la configuración.');
-                }
-            }
-
-            // Llama a la función para cargar y aplicar la configuración cuando la página se carga
-            fetchButtonConfig();
-        });
     </script>
 </body>
 </html>

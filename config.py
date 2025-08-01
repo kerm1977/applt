@@ -46,11 +46,11 @@ class Config:
 
 
 
-# PYTHONANYWHERE
-# config.py
-import os
+# # PYTHONANYWHERE
+# # config.py
+# import os
 
-# Obtener la ruta base del directorio del proyecto
+# # Obtener la ruta base del directorio del proyecto
 # basedir = os.path.abspath(os.path.dirname(__file__))
 
 # class Config:

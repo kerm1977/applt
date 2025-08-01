@@ -542,6 +542,8 @@ if __name__ == '__main__':
 
 
 # borrar base de datos y reconstruirla
+# pip install PyMySQL
+# SHOW TABLES;
 # 21:56 ~/LATRIBU1 (main)$ source env/Scripts/activate <-- Entra al entorno virtual
 # (env) 21:57 ~/LATRIBU1 (main)$
 # (env) 23:30 ~/LATRIBU1 (main)$ cd /home/kenth1977/LATRIBU1

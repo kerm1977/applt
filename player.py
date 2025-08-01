@@ -1,5 +1,5 @@
 # player.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app # Importar current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify # Importar current_app y jsonify
 import os
 # from werkzeug.utils import secure_filename # COMENTADO: Ya no usaremos secure_filename directamente
 from functools import wraps # Necesario para el decorador
@@ -165,7 +165,7 @@ def upload_song():
         audio_file = request.files.get('file')
         file_path_db = None # Ruta que se guardará en la base de datos
 
-        # Usar current_app.SONGS_UPLOAD_FOLDER para guardar el archivo de audio
+        # Usar current_app.config['SONGS_UPLOAD_FOLDER'] para guardar el archivo de audio
         if audio_file and audio_file.filename != '':
             # NUEVO: Validar caracteres en el nombre del archivo de audio
             if not is_valid_filename(audio_file.filename):
@@ -175,8 +175,9 @@ def upload_song():
             if allowed_music_file(audio_file.filename):
                 # NUEVO: Usar generate_unique_filename
                 filename = generate_unique_filename(audio_file.filename, current_app.config['SONGS_UPLOAD_FOLDER'])
-                audio_save_path = os.path.join(current_app.SONGS_UPLOAD_FOLDER, filename)
-                os.makedirs(current_app.SONGS_UPLOAD_FOLDER, exist_ok=True) # Asegurarse de que la carpeta exista
+                # CORREGIDO: Usar current_app.config
+                audio_save_path = os.path.join(current_app.config['SONGS_UPLOAD_FOLDER'], filename)
+                os.makedirs(current_app.config['SONGS_UPLOAD_FOLDER'], exist_ok=True) # Asegurarse de que la carpeta exista
                 audio_file.save(audio_save_path)
                 # Guardar la ruta relativa a 'static/' para la DB (ej. 'uploads/songs/nombre.mp3')
                 # Asegurar que la ruta guardada en la DB use '/'
@@ -191,7 +192,7 @@ def upload_song():
         cover_image_file = request.files.get('cover_image')
         cover_image_path_db = None # Ruta que se guardará en la base de datos
 
-        # Usar current_app.COVERS_UPLOAD_FOLDER para guardar la carátula
+        # Usar current_app.config['COVERS_UPLOAD_FOLDER'] para guardar la carátula
         if cover_image_file and cover_image_file.filename != '':
             # NUEVO: Validar caracteres en el nombre del archivo de carátula
             if not is_valid_filename(cover_image_file.filename):
@@ -201,8 +202,9 @@ def upload_song():
             if allowed_file(cover_image_file.filename): # allowed_file verifica extensiones de imagen
                 # NUEVO: Usar generate_unique_filename
                 cover_filename = generate_unique_filename(cover_image_file.filename, current_app.config['COVERS_UPLOAD_FOLDER'])
-                cover_save_path = os.path.join(current_app.COVERS_UPLOAD_FOLDER, cover_filename)
-                os.makedirs(current_app.COVERS_UPLOAD_FOLDER, exist_ok=True) # Asegurarse de que la carpeta exista
+                # CORREGIDO: Usar current_app.config
+                cover_save_path = os.path.join(current_app.config['COVERS_UPLOAD_FOLDER'], cover_filename)
+                os.makedirs(current_app.config['COVERS_UPLOAD_FOLDER'], exist_ok=True) # Asegurarse de que la carpeta exista
                 cover_image_file.save(cover_save_path)
                 # Guardar la ruta relativa a 'static/' para la DB (ej. 'uploads/covers/imagen.jpg')
                 # Asegurar que la ruta guardada en la DB use '/'
@@ -351,7 +353,7 @@ def change_cover(song_id):
     new_cover_image_file = request.files.get('new_cover_image')
     new_cover_path_db = None # Ruta que se guardará en la base de datos
 
-    # Usar current_app.COVERS_UPLOAD_FOLDER para guardar la nueva carátula
+    # Usar current_app.config['COVERS_UPLOAD_FOLDER'] para guardar la nueva carátula
     if new_cover_image_file and new_cover_image_file.filename != '':
         # NUEVO: Validar caracteres en el nombre del archivo de carátula
         if not is_valid_filename(new_cover_image_file.filename):
@@ -361,8 +363,9 @@ def change_cover(song_id):
         if allowed_file(new_cover_image_file.filename): # allowed_file verifica extensiones de imagen
             # NUEVO: Usar generate_unique_filename
             cover_filename = generate_unique_filename(new_cover_image_file.filename, current_app.config['COVERS_UPLOAD_FOLDER'])
-            cover_save_path = os.path.join(current_app.COVERS_UPLOAD_FOLDER, cover_filename)
-            os.makedirs(current_app.COVERS_UPLOAD_FOLDER, exist_ok=True) # Asegurarse de que la carpeta exista
+            # CORREGIDO: Usar current_app.config
+            cover_save_path = os.path.join(current_app.config['COVERS_UPLOAD_FOLDER'], cover_filename)
+            os.makedirs(current_app.config['COVERS_UPLOAD_FOLDER'], exist_ok=True) # Asegurarse de que la carpeta exista
             new_cover_image_file.save(cover_save_path)
             # Guardar la ruta relativa a 'static/' para la DB (ej. 'uploads/covers/imagen.jpg')
             # Asegurar que la ruta guardada en la DB use '/'
@@ -447,7 +450,7 @@ def get_available_covers():
                 # Construir la ruta relativa a 'static/'
                 relative_path = os.path.join('uploads', 'covers', filename).replace(os.sep, '/')
                 available_covers.append(url_for('static', filename=relative_path))
-    return {'covers': available_covers}
+    return jsonify({'covers': available_covers})
 
 
 @player_bp.route('/player/apply_cover_to_all', methods=['POST'])

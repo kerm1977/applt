@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block head_content %}
+<style>
+    /* Nueva clase para ocultar elementos sin eliminarlos del flujo */
+    .hidden-for-capture {
+        visibility: hidden !important;
+    }
+
+    /* Estilos base para los botones flotantes (FAB) */
+    .fab-container {
+        position: fixed;
+        z-index: 1000; /* Asegura que esté por encima de otros elementos */
+    }
+    .fab-button {
+        width: 60px; /* Tamaño del botón */
+        height: 60px; /* Tamaño del botón */
+        border-radius: 50%; /* Hacerlo circular */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem; /* Tamaño del icono */
+        transition: all 0.3s ease;
+        border: none; /* Asegurar que no haya borde */
+        text-decoration: none; /* Eliminar el subrayado */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para que se vea flotante */
+    }
+    .fab-button:hover {
+        transform: scale(1.05); /* Pequeño efecto al pasar el ratón */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada al pasar el ratón */
+    }
+
+    /* Posiciones y colores específicos para cada FAB */
+    /* Botón Volver (Izquierda, Abajo) */
+    .fab-container-back {
+        bottom: 70px;
+        left: 20px;
+    }
+    .fab-button-back {
+        background-color: #007bff; /* Primary */
+        color: #ffffff;
+    }
+    .fab-button-back:hover {
+        background-color: #0056b3;
+    }
+
+    /* Botón Hacer Backup (Derecha, Abajo) */
+    .fab-container-backup {
+        bottom: 70px;
+        right: 20px;
+    }
+    .fab-button-backup {
+        background-color: #6f42c1; /* Púrpura */
+        color: #ffffff;
+    }
+    .fab-button-backup:hover {
+        background-color: #5a359a;
+    }
+
+    /* Botón Estadísticas (Derecha, Medio) */
+    .fab-container-stats {
+        bottom: 140px;
+        right: 20px;
+    }
+    .fab-button-stats {
+        background-color: #28a745; /* Success */
+        color: #ffffff;
+    }
+    .fab-button-stats:hover {
+        background-color: #218838;
+    }
+
+    /* Botón Cambiar Contraseña (Derecha, Arriba) */
+    .fab-container-change-password {
+        bottom: 210px;
+        right: 20px;
+    }
+    .fab-button-change-password {
+        background-color: #17a2b8; /* Info */
+        color: #ffffff;
+    }
+    .fab-button-change-password:hover {
+        background-color: #117a8b;
+    }
+
+    /* Botón Subir DB (Derecha, Más Arriba) */
+    .fab-container-upload-db {
+        bottom: 280px;
+        right: 20px;
+    }
+    .fab-button-upload-db {
+        background-color: #ffc107; /* Warning (Naranja) */
+        color: #212529; /* Texto oscuro para contraste */
+    }
+    .fab-button-upload-db:hover {
+        background-color: #e0a800;
+    }
+
+    /* Estilos para el contenedor principal de la tarjeta, sin sombras ni bordes */
+    #profile-details-card {
+        background-color: #ffffff; /* Fondo blanco */
+        padding: 30px; /* Relleno interno */
+        border-radius: 15px; /* Bordes redondeados */
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Estilos para el avatar */
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-color: #ffc107 !important; /* Borde naranja como en detalle_contactos */
+        border: 3px solid; /* Asegura que el borde se aplique */
+    }
+
+    /* Estilos para los ítems de lista */
+    .list-group-item {
+        border: none !important; /* Eliminar bordes de los ítems de lista */
+        padding: 8px 0; /* Ajustar padding para separación */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Línea divisoria para los ítems de lista */
+    .list-group-item:not(:last-child) {
+        border-bottom: 1px dotted #e9ecef !important;
+    }
+
+    /* Margen inferior para el contenedor de botones */
+    #export-buttons-container {
+        margin-bottom: 80px; /* Margen inferior de 80px */
+    }
+
+    /* Asegurar que el img-thumbnail no tenga bordes */
+    .img-thumbnail {
+        border: none !important;
+    }
+
+    /* Ajuste para el contenido principal para evitar que el navbar lo cubra */
+    body {
+        padding-top: 70px; /* Ajusta este valor según la altura de tu navbar */
+    }
+
+    /* Media query para pantallas pequeñas (móviles) */
+    @media (max-width: 768px) {
+        /* Ajustar posiciones de FABs en móviles para evitar solapamiento */
+        .fab-container-back { bottom: 60px; left: 15px; }
+
+        /* Ajustes para los botones derechos con 5px de margen */
+        .fab-container-backup { bottom: 60px; right: 15px; }
+        .fab-container-stats { bottom: calc(60px + 60px + 5px); right: 15px; } /* 60 (backup) + 5 (margen) + 60 (propio) = 125px */
+        .fab-container-change-password { bottom: calc(125px + 60px + 5px); right: 15px; } /* 125 (stats) + 5 (margen) + 60 (propio) = 190px */
+        .fab-container-upload-db { bottom: calc(190px + 60px + 5px); right: 15px; } /* 190 (change-password) + 5 (margen) + 60 (propio) = 255px */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-8">
+            {# Contenedor principal del perfil, con el mismo ID para la captura JPG #}
+            <div id="profile-details-card" class="p-4">
+                <h2 class="card-title text-center mb-4 text-warning">Mi Perfil</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="text-center mb-4">
+                    {% if user.avatar_url %}
+                        <img src="{{ url_for('static', filename=user.avatar_url) }}" alt="Avatar de {{ user.username }}"
+                             class="img-thumbnail rounded-circle mb-3 profile-avatar">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/avatars/default.png') }}" alt="Avatar por defecto"
+                             class="img-thumbnail rounded-circle mb-3 profile-avatar">
+                    {% endif %}
+                    <h3 class="h4 mb-1">{{ user.nombre }} {{ user.primer_apellido }} {{ user.segundo_apellido if user.segundo_apellido else '' }}</h3>
+                    <p class="text-muted">@{{ user.username }}</p>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h4 class="text-warning mb-3">Información de Contacto</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Teléfono:</strong>
+                                <span>{{ user.telefono }}</span>
+                            </li>
+                            {% if user.email %}
+                            <li class="list-group-item">
+                                <strong>Email:</strong>
+                                <span>{{ user.email }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.telefono_emergencia %}
+                            <li class="list-group-item">
+                                <strong>Tel. Emergencia:</strong>
+                                <span>{{ user.telefono_emergencia }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.nombre_emergencia %}
+                            <li class="list-group-item">
+                                <strong>Contacto Emergencia:</strong>
+                                <span>{{ user.nombre_emergencia }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.direccion %}
+                            <li class="list-group-item">
+                                <strong>Provincia:</strong>
+                                <span>{{ user.direccion }}</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <h4 class="text-warning mb-3">Información Adicional</h4>
+                        <ul class="list-group list-group-flush">
+                            {% if user.cedula %}
+                            <li class="list-group-item">
+                                <strong>Cédula:</strong>
+                                <span>{{ user.cedula }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.empresa %}
+                            <li class="list-group-item">
+                                <strong>Empresa:</strong>
+                                <span>{{ user.empresa }}</span>
+                            </li>
+                            {% endif %}
+                            {# MODIFICACIÓN: Mostrar Actividad solo para Superuser #}
+                            {% if session.role == 'Superuser' %}
+                                {% if user.actividad %}
+                                <li class="list-group-item">
+                                    <strong>Actividad:</strong>
+                                    <span>{{ user.actividad }}</span>
+                                </li>
+                                {% endif %}
+                            {% endif %}
+                            {# MODIFICACIÓN: Mostrar Capacidad solo para Superuser #}
+                            {% if session.role == 'Superuser' %}
+                                {% if user.capacidad %}
+                                <li class="list-group-item">
+                                    <strong>Capacidad:</strong>
+                                    <span>{{ user.capacidad }}</span>
+                                </li>
+                                {% endif %}
+                            {% endif %}
+                            {# MODIFICACIÓN: Mostrar Participación solo para Superuser #}
+                            {% if session.role == 'Superuser' %}
+                                {% if user.participacion %}
+                                <li class="list-group-item">
+                                    <strong>Participación:</strong>
+                                    <span>{{ user.participacion }}</span>
+                                </li>
+                                {% endif %}
+                            {% endif %}
+                            {% if user.fecha_cumpleanos %}
+                            <li class="list-group-item">
+                                <strong>Fecha de Cumpleaños:</strong>
+                                <span>{{ user.fecha_cumpleanos.strftime('%d/%m/%Y') }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.tipo_sangre %}
+                            <li class="list-group-item">
+                                <strong>Tipo de Sangre:</strong>
+                                <span>{{ user.tipo_sangre }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.poliza %}
+                            <li class="list-group-item">
+                                <strong>Póliza:</strong>
+                                <span>{{ user.poliza }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.aseguradora %}
+                            <li class="list-group-item">
+                                <strong>Aseguradora:</strong>
+                                <span>{{ user.aseguradora }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.alergias %}
+                            <li class="list-group-item">
+                                <strong>Alergias:</strong>
+                                <span>{{ user.alergias }}</span>
+                            </li>
+                            {% endif %}
+                            {% if user.enfermedades_cronicas %}
+                            <li class="list-group-item">
+                                <strong>Enfermedades Crónicas:</strong>
+                                <span>{{ user.enfermedades_cronicas }}</span>
+                            </li>
+                            {% endif %}
+                            <li class="list-group-item">
+                                <strong>Fecha de Registro:</strong>
+                                {# MODIFICACIÓN: Usar el filtro to_datetime antes de strftime #}
+                                <span>
+                                    {% set reg_date = user.fecha_registro | to_datetime %}
+                                    {% if reg_date %}
+                                        {{ reg_date.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                        Fecha inválida
+                                    {% endif %}
+                                </span>
+                            </li>
+                            {% if user.fecha_actualizacion %}
+                            <li class="list-group-item">
+                                <strong>Última Actualización:</strong>
+                                {# MODIFICACIÓN: Usar el filtro to_datetime antes de strftime #}
+                                <span>
+                                    {% set upd_date = user.fecha_actualizacion | to_datetime %}
+                                    {% if upd_date %}
+                                        {{ upd_date.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                        Fecha inválida
+                                    {% endif %}
+                                </span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                {# Contenedor de botones #}
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" id="export-buttons-container">
+                    <a href="{{ url_for('perfil.editar_perfil') }}" class="btn btn-primary btn-lg">
+                        Editar mi Información
+                    </a>
+                    {% set first_digit = user.telefono[0] if user.telefono else '' %}
+                    {% set disable_whatsapp = first_digit in ['1', '2', '3', '4', '5', '9', '0'] %}
+
+                    {% if disable_whatsapp %}
+                        <button class="btn btn-success btn-lg d-flex align-items-center disabled" disabled title="Este número de teléfono no es compatible con WhatsApp.">
+                            <i class="fab fa-whatsapp me-2"></i> Enviar por WhatsApp
+                        </button>
+                    {% else %}
+                        <a href="https://wa.me/{{ user.telefono }}?text={{ (
+                            'Hola, te comparto tu información de perfil: '
+                            + user.nombre + ' ' + user.primer_apellido
+                            + ((' ' + user.segundo_apellido) if user.segundo_apellido else '')
+                            + '. Tu teléfono es ' + user.telefono + '.'
+                        )|urlencode }}"
+                           target="_blank" class="btn btn-success btn-lg d-flex align-items-center">
+                            <i class="fab fa-whatsapp me-2"></i> Enviar por WhatsApp
+                        </a>
+                    {% endif %}
+
+                    {# MODIFICACIÓN: Mis Archivos visible solo para Superuser #}
+                    {% if session.get('role') == 'Superuser' %}
+                    <a href="{{ url_for('files.ver_files') }}" class="btn btn-info btn-lg d-flex align-items-center">
+                        <i class="fas fa-folder me-2"></i> Mis Archivos
+                    </a>
+                    {% endif %}
+
+                    {# Botón para exportar el carnet a JPG #}
+                    <button type="button" class="btn btn-secondary dropdown-toggle btn-lg" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Exportar Perfil
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#" id="exportMyProfileJpgBtn">Exportar JPG (.jpg)</a></li>
+                        {# Puedes añadir más opciones de exportación aquí si las tienes implementadas en Flask #}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Botones flotantes (FABs) #}
+
+    {# Botón flotante para volver atrás (Izquierda, Abajo) #}
+    <div class="fab-container fab-container-back">
+        <a href="{{ url_for('home') }}" class="fab-button fab-button-back" title="Volver a Inicio">
+            <i class="fas fa-arrow-left"></i> {# Icono de flecha izquierda #}
+        </a>
+    </div>
+
+    {# Botón flotante para Hacer Backup (Derecha, Abajo) #}
+    {% if session.get('role') == 'Superuser' %}
+    <div class="fab-container fab-container-backup">
+        <button type="button" class="fab-button fab-button-backup" title="Hacer Backup de la Base de Datos" onclick="performBackup()">
+            <i class="fas fa-database"></i> {# Icono de base de datos #}
+        </button>
+    </div>
+    {% endif %}
+
+    {# Nuevo botón flotante para Estadísticas (Derecha, Medio) #}
+    {% if current_user_role == 'Superuser' %}
+    <div class="fab-container fab-container-stats">
+        <a href="{{ url_for('perfil.dashboard_stats') }}" class="fab-button fab-button-stats" title="Ver Estadísticas del Sitio">
+            <i class="fas fa-chart-bar"></i> {# Icono de gráfico de barras #}
+        </a>
+    </div>
+    {% endif %}
+
+    {# Nuevo botón flotante para Cambiar Contraseña (Derecha, Arriba) #}
+    {% if session.get('logged_in') %}
+    <div class="fab-container fab-container-change-password">
+        <a href="{{ url_for('perfil.change_password') }}" class="fab-button fab-button-change-password" title="Cambiar Contraseña">
+            <i class="fas fa-key"></i> {# Icono de llave #}
+        </a>
+    </div>
+    {% endif %}
+
+    {# Botón flotante para Subir DB (Derecha, Más Arriba) #}
+    {% if session.get('role') == 'Superuser' %}
+    <div class="fab-container fab-container-upload-db">
+        <button type="button" class="fab-button fab-button-upload-db" title="Subir y Reemplazar Base de Datos" onclick="triggerDbUpload()">
+            <i class="fas fa-upload"></i> {# Icono de subir #}
+        </button>
+        <input type="file" id="dbUploadInput" accept=".db" style="display: none;">
+    </div>
+    {% endif %}
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const exportMyProfileJpgBtn = document.getElementById('exportMyProfileJpgBtn');
+            const profileElement = document.getElementById('profile-details-card'); // Apunta al contenedor principal del perfil
+            const buttonsContainer = document.getElementById('export-buttons-container');
+
+            if (exportMyProfileJpgBtn && profileElement && buttonsContainer) {
+                exportMyProfileJpgBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    buttonsContainer.classList.add('hidden-for-capture'); // Oculta los botones antes de la captura
+                    setTimeout(() => { // Pequeño retraso para asegurar que la clase se aplique
+                        html2canvas(profileElement, { /* Captura solo el div del perfil */
+                            scale: 2, /* Aumenta la resolución de la captura */
+                            useCORS: true, /* Importante si hay imágenes de diferentes orígenes */
+                            logging: false /* Deshabilita los logs en consola */
+                        }).then(function(canvas) {
+                            /* Mostrar los botones de nuevo después de la captura */
+                            buttonsContainer.classList.remove('hidden-for-capture');
+
+                            const link = document.createElement('a');
+                            link.download = 'mi_perfil_{{ user.username }}.jpg'; /* Nombre del archivo */
+                            link.href = canvas.toDataURL('image/jpeg', 0.9); /* Calidad 90% para JPG */
+                            document.body.appendChild(link);
+                            link.click(); /* Simula un clic en el enlace para descargar */
+                            document.body.removeChild(link);
+                        }).catch(err => {
+                            console.error('Error al generar la imagen JPG del perfil:', err);
+                            /* Asegurarse de mostrar los botones en caso de error */
+                            buttonsContainer.classList.remove('hidden-for-capture');
+                            // Reemplazado alert() con un mensaje en consola para evitar bloqueos en el iFrame
+                            console.log('Hubo un error al exportar la imagen de tu perfil. Por favor, inténtalo de nuevo.');
+                        });
+                    }, 50); /* Pequeño retraso de 50ms (puedes ajustar si es necesario) */
+                });
+            }
+        });
+
+        // Función para el botón de backup
+        function performBackup() {
+            // Crear un formulario dinámico para enviar la solicitud POST
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ url_for("perfil.backup_database") }}'; // Apunta a la nueva ruta de backup
+
+            // Añadir el token CSRF si lo estás usando
+            const csrfToken = document.querySelector('input[name="csrf_token"]');
+            if (csrfToken) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'csrf_token';
+                hiddenInput.value = csrfToken.value;
+                form.appendChild(hiddenInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Función para el botón de subir DB
+        function triggerDbUpload() {
+            const dbUploadInput = document.getElementById('dbUploadInput');
+            dbUploadInput.click(); // Simula un clic en el input de archivo
+
+            dbUploadInput.onchange = function() {
+                if (dbUploadInput.files.length > 0) {
+                    const file = dbUploadInput.files[0];
+                    
+                    // Crear un formulario dinámico para enviar la solicitud POST
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ url_for("perfil.upload_database") }}';
+                    form.enctype = 'multipart/form-data'; // Importante para subir archivos
+
+                    // Crear un input de tipo 'file' oculto y asignarle el archivo seleccionado
+                    const fileInputHidden = document.createElement('input');
+                    fileInputHidden.type = 'file';
+                    fileInputHidden.name = 'db_file'; // El nombre que Flask esperará en request.files
+                    fileInputHidden.style.display = 'none';
+                    
+                    // Asignar el archivo al input oculto
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInputHidden.files = dataTransfer.files;
+                    form.appendChild(fileInputHidden);
+
+                    // Añadir el token CSRF si lo estás usando
+                    const csrfToken = document.querySelector('input[name="csrf_token"]');
+                    if (csrfToken) {
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'csrf_token';
+                        hiddenInput.value = csrfToken.value;
+                        form.appendChild(hiddenInput);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            };
+        }
+
+        // Modal de Confirmación Personalizado (copiado de ver_files.html para consistencia)
+        // Esta función ya no se usa para el backup, pero se mantiene por si se usa en otro lugar.
+        function customConfirm(message, callback) {
+            const modalHtml = `
+                <div class="custom-modal-overlay" id="customConfirmModal" style="display: flex;">
+                    <div class="custom-modal-content">
+                        <h5 id="customConfirmMessage">${message}</h5>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-danger" id="customConfirmYes">Sí</button>
+                            <button type="button" class="btn btn-secondary" id="customConfirmNo">No</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            const modal = document.getElementById('customConfirmModal');
+            const yesBtn = document.getElementById('customConfirmYes');
+            const noBtn = document.getElementById('customConfirmNo');
+
+            yesBtn.onclick = () => {
+                modal.remove();
+                callback(true);
+            };
+
+            noBtn.onclick = () => {
+                modal.remove();
+                callback(false);
+            };
+        }
+    </script>
+    {% endblock %}

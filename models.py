@@ -440,9 +440,18 @@ class Pagos(db.Model):
     descripcion_otros3_personales = db.Column(db.String(255), nullable=True)
     precio_otros4_personales = db.Column(db.Float, default=0)
     descripcion_otros4_personales = db.Column(db.String(255), nullable=True)
-    
-    tipo_cambio = db.Column(db.Float, nullable=True) # Tipo de cambio para USD
-    
+
+    # Totales (calculados y almacenados para referencia rápida)
+    total_general_transporte = db.Column(db.Float, default=0)
+    total_individual_transporte = db.Column(db.Float, default=0)
+    total_general_guias = db.Column(db.Float, default=0)
+    total_individual_guias = db.Column(db.Float, default=0)
+    total_individual_personales = db.Column(db.Float, default=0)
+    total_general_total = db.Column(db.Float, default=0)
+    total_individual_total = db.Column(db.Float, default=0)
+    ganancia_pp = db.Column(db.Float, default=0)
+    ganancia_gral = db.Column(db.Float, default=0)
+
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_actualizacion = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True) # Añadir fecha_actualizacion
 

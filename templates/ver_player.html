@@ -20,164 +20,206 @@
                 margin-right: auto;
                 border-radius: 20px; /* Se solicitó mantener este borde redondeado */
             }
-            /* Nuevo wrapper para la carátula o el texto de reemplazo */
+            
+            .volume-control-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 60%;
+                max-width: 250px;
+                margin: 0 auto 1.5rem auto;
+                color: white;
+            }
+
+            .volume-slider {
+                -webkit-appearance: none;
+                width: 100%;
+                height: 5px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 5px;
+                outline: none;
+                transition: opacity .2s;
+            }
+
+            .volume-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 15px;
+                height: 15px;
+                background: white;
+                cursor: pointer;
+                border-radius: 50%;
+            }
+
+            .volume-slider::-moz-range-thumb {
+                width: 15px;
+                height: 15px;
+                background: white;
+                cursor: pointer;
+                border-radius: 50%;
+            }
+
+
             .cover-art-wrapper {
-                width: 80%; /* Más pequeña */
-                max-width: 300px; /* Establece un tamaño máximo para la carátula */
-                aspect-ratio: 1 / 1; /* Mantiene una relación de aspecto 1:1 (cuadrada) */
-                display: flex; /* Para centrar el contenido */
+                width: 80%; 
+                max-width: 300px; 
+                aspect-ratio: 1 / 1;
+                display: flex; 
                 justify-content: center;
                 align-items: center;
                 border-radius: 1rem;
-                margin: 0 auto 1.5rem auto; /* Centra y mantiene el margen inferior */
-                overflow: hidden; /* Asegura que la imagen o el texto no se salgan */
-                background-color: #ffc927; /* Nuevo color de fondo hexadecimal para la carátula */
+                margin: 0 auto 1.5rem auto; 
+                overflow: hidden; 
+                background-color: #ffc927; 
             }
-            .cover-art { /* Estilo para la imagen de la carátula */
+            .cover-art { 
                 width: 100%;
-                height: 100%; /* Ocupa todo el alto del wrapper */
+                height: 100%;
                 object-fit: cover;
                 border-radius: 1rem;
             }
             .no-cover-text {
-                color: white; /* Texto blanco */
-                font-size: 0.8rem; /* Texto pequeño */
+                color: white; 
+                font-size: 0.8rem; 
                 text-align: center;
             }
 
-            /* Remueve todas las sombras de los botones para un look plano */
             .btn, .modal-content {
                 box-shadow: none !important;
             }
 
-            /* Clase específica para el botón de play/pause, que será el más grande */
             .play-button-large {
-                font-size: 3rem; /* Aumentado el tamaño del icono */
+                font-size: 3rem; 
                 padding: 1.2rem 1.8rem;
                 border-radius: 50px;
-                margin: 0 0.1rem; /* Margen horizontal reducido para acercar los botones */
+                margin: 0 0.1rem; 
                 transition: all 0.2s ease-in-out;
-                display: inline-flex; /* Para centrar el contenido dentro del botón */
+                display: inline-flex; 
                 align-items: center;
                 justify-content: center;
-                background-color: transparent; /* Fondo transparente */
-                border: 2px solid white; /* Borde blanco sutil */
-                color: white; /* Color del icono blanco para que se vea */
+                background-color: transparent; 
+                border: 2px solid white; 
+                color: white; 
             }
             .play-button-large:hover {
                 transform: translateY(-2px);
             }
 
-            /* Clase para botones de rebobinar/adelantar (tamaño mediano, forma de píldora) */
             .control-button-medium {
-                font-size: 1.1rem; /* Hecho más pequeño */
-                padding: 0.7rem 1rem; /* Hecho más pequeño */
+                font-size: 1.1rem; 
+                padding: 0.7rem 1rem; 
                 border-radius: 50px;
-                margin: 0 0.1rem; /* Margen horizontal reducido para acercar los botones */
+                margin: 0 0.1rem; 
                 transition: all 0.2s ease-in-out;
-                margin-top: 12px; /* Ajustado para mantener el desplazamiento */
-                display: inline-flex; /* Para centrar el contenido dentro del botón */
+                margin-top: 12px; 
+                display: inline-flex; 
                 align-items: center;
                 justify-content: center;
-                background-color: transparent; /* Fondo transparente */
-                border: 2px solid #efb300; /* Borde naranja más oscuro */
-                color: #343a40; /* Texto más oscuro para contraste */
+                background-color: transparent; 
+                border: 2px solid #efb300; 
+                color: #343a40; 
             }
             .control-button-medium:hover {
                 transform: translateY(-2px);
             }
 
-            /* Clase para botones de canción anterior/siguiente (tamaño pequeño, perfectamente redondos) */
             .control-button-small {
-                font-size: 1rem; /* Hecho más pequeño */
-                width: 45px; /* Hecho más pequeño */
-                height: 45px; /* Hecho más pequeño */
-                padding: 0; /* Eliminar padding para que el tamaño sea controlado por width/height */
-                border-radius: 50%; /* Perfectamente redondo */
-                margin: 0 0.1rem; /* Margen horizontal reducido para acercar los botones */
+                font-size: 1rem; 
+                width: 45px; 
+                height: 45px; 
+                padding: 0; 
+                border-radius: 50%; 
+                margin: 0 0.1rem; 
                 transition: all 0.2s ease-in-out;
-                margin-top: 17px; /* Ajustado para mantener el desplazamiento */
-                display: inline-flex; /* Para centrar el contenido dentro del botón */
+                margin-top: 17px; 
+                display: inline-flex; 
                 align-items: center;
                 justify-content: center;
-                background-color: transparent; /* Fondo transparente */
-                border: none; /* CAMBIO: Borde eliminado */
-                color: #343a40; /* Texto más oscuro para contraste */
+                background-color: transparent; 
+                border: none; 
+                color: #343a40; 
             }
             .control-button-small:hover {
                 transform: translateY(-1px);
             }
 
-            .player-small-btn { /* Clase para botones de repetir canción/lista */
+            .player-small-btn { 
                 font-size: 1rem;
                 padding: 0.5rem 0.8rem;
-                border-radius: 50px; /* Botones redondos/píldora */
+                border-radius: 50px; 
                 margin: 0.2rem;
                 transition: all 0.2s ease-in-out;
-                background-color: transparent; /* Fondo transparente */
-                border: 2px solid #ffffff; /* Borde blanco */
-                color: #343a40; /* Color de ícono oscuro */
+                background-color: transparent; 
+                border: 2px solid #ffffff; 
+                color: #343a40; 
             }
             .player-small-btn:hover {
                 transform: translateY(-1px);
             }
 
-            /* Estilos para los botones en la lista de canciones */
             .list-group-item .btn-sm {
                 font-size: 0.9rem;
                 padding: 0.5rem 0.7rem;
-                border-radius: 50%; /* Redondo */
+                border-radius: 50%; 
                 transition: all 0.2s ease-in-out;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                margin: 0 0.2rem; /* Espacio entre los botones */
+                margin: 0 0.2rem; 
             }
 
             .list-group-item .btn-outline-primary {
-                background-color: transparent;
-                border: 2px solid #0d6efd; /* Color azul de Bootstrap */
-                color: #0d6efd;
+                background-color: #0d6efd;
+                color: white;
+                border: none;
             }
             .list-group-item .btn-outline-primary:hover {
-                background-color: #0d6efd;
+                background-color: #0b5ed7;
                 color: white;
             }
 
             .list-group-item .btn-outline-danger {
-                background-color: transparent;
-                border: 2px solid #dc3545; /* Color rojo de Bootstrap */
-                color: #dc3545;
+                background-color: #dc3545;
+                color: white;
+                border: none;
             }
             .list-group-item .btn-outline-danger:hover {
-                background-color: #dc3545;
+                background-color: #c82333;
                 color: white;
             }
             
-            /* CAMBIO: Nuevo estilo para el botón de editar información */
             .btn-edit-info {
-                background-color: #198754; /* Verde sólido */
+                background-color: #198754; 
                 color: white;
                 border: none;
             }
             .btn-edit-info:hover {
-                background-color: #157347; /* Verde más oscuro al pasar el ratón */
+                background-color: #157347; 
             }
 
-            .list-group-item .btn-outline-stop { /* Nuevo estilo para el botón de stop en la lista */
-                background-color: transparent;
-                border: 2px solid #ff6f00; /* Naranja más vivo para stop */
-                color: #ff6f00;
+            .list-group-item .btn-outline-stop { 
+                background-color: #ff6f00;
+                color: white;
+                border: none;
             }
             .list-group-item .btn-outline-stop:hover {
-                background-color: #ff6f00;
+                background-color: #e06200;
                 color: white;
             }
 
-            /* Ajustes para botones de gestión (Subir, Eliminar, Cambiar Carátula) */
+            .btn-download {
+                background-color: #0dcaf0;
+                color: white;
+                border: none;
+            }
+            .btn-download:hover {
+                background-color: #0aa9c4;
+                color: white;
+            }
+
             .btn-success {
                 background-color: transparent;
-                border: 2px solid #198754; /* Color verde de Bootstrap */
+                border: 2px solid #198754; 
                 color: #198754;
             }
             .btn-success:hover {
@@ -187,7 +229,7 @@
 
             .btn-danger {
                 background-color: transparent;
-                border: 2px solid #dc3545; /* Color rojo de Bootstrap */
+                border: 2px solid #dc3545; 
                 color: #dc3545;
             }
             .btn-danger:hover {
@@ -195,9 +237,9 @@
                 color: white;
             }
             
-            .btn-outline-dark { /* Ya eran transparentes, solo ajustar el color del texto si es necesario */
+            .btn-outline-dark { 
                 background-color: transparent;
-                border: 2px solid #212529; /* Color oscuro de Bootstrap */
+                border: 2px solid #212529; 
                 color: #212529;
             }
             .btn-outline-dark:hover {
@@ -205,9 +247,9 @@
                 color: white;
             }
 
-            .btn-warning { /* Para el botón "Subir Canción" del modal */
+            .btn-warning { 
                 background-color: transparent;
-                border: 2px solid #ffc107; /* Color naranja de Bootstrap */
+                border: 2px solid #ffc107; 
                 color: #ffc107;
             }
             .btn-warning:hover {
@@ -215,9 +257,9 @@
                 color: #212529;
             }
 
-            .btn-secondary { /* Para los botones "Cancelar" en los modales */
+            .btn-secondary { 
                 background-color: transparent;
-                border: 2px solid #6c757d; /* Color gris de Bootstrap */
+                border: 2px solid #6c757d; 
                 color: #6c757d;
             }
             .btn-secondary:hover {
@@ -235,87 +277,96 @@
             }
             .progress-bar {
                 height: 100%;
-                width: 0%; /* Se actualizará con JS */
+                width: 0%; 
                 background-color: #0d6efd;
                 border-radius: 5px;
                 transition: width 0.1s linear;
             }
             .section-title {
-                font-size: clamp(1.5rem, 5vw, 1.8rem); /* CAMBIO: Tamaño de fuente responsivo */
+                font-size: clamp(1.5rem, 5vw, 1.8rem); 
                 color: white; 
                 margin-bottom: 1.5rem;
                 padding-bottom: 0.5rem;
-                white-space: nowrap; /* CAMBIO: Evita el salto de línea */
-                overflow: hidden; /* Oculta el texto que se desborda */
-                text-overflow: ellipsis; /* Añade "..." si el texto es muy largo */
+                white-space: nowrap; 
+                overflow: hidden; 
+                text-overflow: ellipsis; 
             }
 
-            /* Nuevo estilo para el contenedor de la lista de canciones */
             .songs-list-card {
-                background-color: #ffc927; /* Color solicitado */
-                padding: 1.5rem 0.5rem; /* CAMBIO: Reducido el padding horizontal */
-                border-radius: 1rem; /* Bordes redondeados para el cuadro */
-                margin-bottom: 3rem; /* Espacio debajo del cuadro */
+                background-color: #ffc927; 
+                padding: 1.5rem 0.5rem; 
+                border-radius: 1rem; 
+                margin-bottom: 3rem; 
             }
 
-            /* Estilo para los ítems individuales dentro del nuevo contenedor */
             .songs-list-card .list-group {
-                margin-bottom: 0; /* Eliminar margen inferior del list-group dentro del card */
+                margin-bottom: 0; 
             }
 
             .songs-list-card .list-group-item {
-                background-color: transparent; /* Fondo transparente para los ítems */
-                border: none; /* Sin borde entre los ítems */
-                padding: 0.5rem 0; /* Reducir un poco el padding vertical */
-                border-radius: 0; /* Sin bordes redondeados en los ítems */
-                margin-bottom: 0; /* Eliminar margen inferior entre ítems */
+                background-color: transparent; 
+                border: none; 
+                padding: 0.5rem 0; 
+                border-radius: 0; 
+                margin-bottom: 0; 
             }
 
-            /* HR separator for mobile view */
             .songs-list-card .list-item-separator {
-                border-top: 1px solid #ffcc66; /* Naranja claro para la línea divisoria */
-                margin: 1rem 0; /* Espacio vertical para la línea */
+                border-top: 1px solid #ffcc66; 
+                margin: 1rem 0; 
             }
 
             .songs-list-card .list-group-item:last-child .list-item-separator {
-                display: none; /* No mostrar la línea después del último ítem */
+                display: none; 
             }
 
-            .list-group-item { /* Mantener estos estilos generales */
+            .list-group-item { 
                 display: flex;
-                flex-direction: column; /* Por defecto en columna para móvil */
-                justify-content: space-between;
-                align-items: flex-start; /* Alinear texto a la izquierda */
+                flex-direction: column;
+                align-items: center;
                 padding: 0.75rem 1.25rem;
             }
-
-            .list-group-item > div:first-child {
-                width: 100%; /* El texto ocupa todo el ancho */
-                margin-bottom: 0.5rem; /* Espacio entre el texto y los botones */
+            
+            .song-info-text {
+                text-align: center;
+                width: 100%;
+            }
+            
+            .audio-visualizer {
+                width: 80px; 
+                height: 30px; 
+                margin: 0.5rem 0;
+                display: none; 
             }
 
             .list-group-item .song-buttons-container {
                 display: flex;
-                justify-content: center; /* Centrar los botones en móvil */
-                width: 100%; /* Ocupar todo el ancho */
-                margin-top: 0.5rem; /* Espacio entre el texto y los botones */
+                justify-content: center; 
+                width: 100%; 
             }
 
-            @media (min-width: 768px) { /* Para tablet y desktop */
+            @media (min-width: 768px) { 
                 .list-group-item {
-                    flex-direction: row; /* En fila para pantallas más grandes */
-                    align-items: center; /* Alinear al centro verticalmente */
+                    display: grid;
+                    grid-template-columns: 1fr auto auto; /* Texto | Visualizador | Botones */
+                    grid-template-areas: "text visualizer buttons";
+                    align-items: center;
+                    padding: 0.75rem 1.25rem;
                 }
-                .list-group-item > div:first-child {
-                    margin-bottom: 0; /* Eliminar margen inferior */
+                .song-info-text {
+                    grid-area: text;
+                    text-align: left;
+                    width: auto;
                 }
-                .list-group-item .song-buttons-container {
-                    justify-content: flex-end; /* Alinear a la derecha los botones */
-                    width: auto; /* Ancho automático */
-                    margin-top: 0; /* Eliminar margen superior */
+                .audio-visualizer {
+                    grid-area: visualizer;
+                    margin: 0 1rem;
+                }
+                .song-buttons-container {
+                    grid-area: buttons;
                 }
                 .songs-list-card .list-item-separator {
-                    display: none; /* Ocultar el separador en desktop */
+                    display: none; 
                 }
             }
 
@@ -334,22 +385,20 @@
                 transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
             }
 
-            /* Nuevo estilo para el botón de "Volver a Caminatas" */
             .back-to-walks-btn {
                 background-color: transparent;
                 border: 2px solid white;
                 color: white;
                 padding: 0.8rem 1.5rem;
                 border-radius: 50px;
-                margin-bottom: 2rem; /* Añade espacio debajo del botón */
+                margin-bottom: 2rem; 
                 transition: all 0.2s ease-in-out;
             }
             .back-to-walks-btn:hover {
                 transform: translateY(-2px);
                 background-color: white;
-                color: #ffc107; /* Coincide con el color de fondo del body al pasar el ratón */
+                color: #ffc107; 
             }
-            /* Estilos para el spinner de carga */
             .spinner-border-sm {
                 width: 1rem;
                 height: 1rem;
@@ -364,6 +413,12 @@
                     <button class="btn back-to-walks-btn mb-4" onclick="goToWalks()" title="Volver a Caminatas">
                         <i class="fas fa-home me-2"></i> Volver a Caminatas
                     </button>
+
+                    <div class="volume-control-container">
+                        <i class="fas fa-volume-down me-2"></i>
+                        <input type="range" class="form-range volume-slider" id="volume-slider" min="0" max="1" step="0.01" value="1">
+                        <i class="fas fa-volume-up ms-2"></i>
+                    </div>
 
                     <div class="cover-art-wrapper">
                         <img id="current-cover-art" src="" alt="Carátula del Álbum" class="img-fluid cover-art">
@@ -401,15 +456,19 @@
                     {% if songs %}
                         {% for song in songs %}
                             <div class="list-group-item">
-                                <div>
+                                <div class="song-info-text">
                                     <span class="me-2 text-muted">{{ loop.index }}.</span> <strong>{{ song.title }}</strong>{% if song.artist and song.artist.strip() %} - <span class="text-muted">{{ song.artist }}</span>{% endif %}
                                 </div>
+                                <canvas class="audio-visualizer" id="visualizer-{{ song.id }}" width="80" height="30"></canvas>
                                 <div class="song-buttons-container">
                                     <button class="btn btn-sm btn-outline-primary" id="play-button-{{ song.id }}" data-song-id="{{ song.id }}" onclick="playSong({{ song.id }})"><i class="fas fa-play"></i></button>
                                     <button class="btn btn-sm btn-outline-stop" data-song-id="{{ song.id }}" onclick="stopPlayback()" title="Detener"><i class="fas fa-stop"></i></button>
                                     
+                                    <a href="{{ song.file_path }}" download class="btn btn-sm btn-download" title="Descargar">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+
                                     {% if user_role == 'Superuser' %}
-                                    <!-- CAMBIO: Se cambió la clase de 'btn-outline-warning' a 'btn-edit-info' -->
                                     <button class="btn btn-sm btn-edit-info" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#editSongModal" 
@@ -477,7 +536,6 @@
                         <h5 class="modal-title" id="editSongModalLabel">Editar Información de la Canción</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
-                    <!-- CAMBIO: Añadido enctype="multipart/form-data" para permitir la subida de archivos -->
                     <form id="edit-song-form" method="POST" action="" enctype="multipart/form-data">
                         <div class="modal-body">
                             <div class="mb-3">
@@ -492,7 +550,6 @@
                                 <label for="edit_album" class="form-label">Álbum:</label>
                                 <input type="text" class="form-control rounded-pill" id="edit_album" name="edit_album">
                             </div>
-                            <!-- CAMBIO: Nuevo campo para cambiar el archivo de audio -->
                             <div class="mb-3">
                                 <label for="edit_audio_file" class="form-label">Cambiar Archivo de Audio (Opcional):</label>
                                 <input type="file" class="form-control-file rounded-pill" id="edit_audio_file" name="edit_audio_file" accept="audio/*">
@@ -703,16 +760,96 @@
         const durationSpan = document.getElementById('duration');
         const currentSongTitle = document.getElementById('current-song-title');
         const currentSongArtist = document.getElementById('current-song-artist');
+        const volumeSlider = document.getElementById('volume-slider');
         
         const currentCoverArtImg = document.getElementById('current-cover-art');
         const noCoverTextDiv = document.getElementById('no-cover-text');
 
         let audio = new Audio();
+        audio.crossOrigin = "anonymous"; 
         let currentSongIndex = 0;
         let songs = [];
         let isPlaying = false;
         let repeatSong = false;
         let repeatList = false;
+
+        let audioContext;
+        let analyser;
+        let source;
+        let dataArray;
+        let animationFrameId;
+
+        function setupAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                
+                source = audioContext.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+            }
+        }
+        
+        function drawVisualizer() {
+            animationFrameId = requestAnimationFrame(drawVisualizer);
+            analyser.getByteTimeDomainData(dataArray);
+
+            const canvas = document.getElementById(`visualizer-${songs[currentSongIndex].id}`);
+            if (!canvas) return;
+            
+            const canvasCtx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            canvasCtx.lineWidth = 2;
+            canvasCtx.strokeStyle = 'rgb(0, 0, 0)';
+            canvasCtx.beginPath();
+
+            const sliceWidth = canvas.width * 1.0 / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * canvas.height / 2;
+
+                if (i === 0) {
+                    canvasCtx.moveTo(x, y);
+                } else {
+                    canvasCtx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            canvasCtx.lineTo(canvas.width, canvas.height / 2);
+            canvasCtx.stroke();
+        }
+        
+        function updateVisualizerState() {
+            document.querySelectorAll('.audio-visualizer').forEach(canvas => {
+                canvas.style.display = 'none';
+            });
+
+            if (isPlaying && songs.length > 0) {
+                const currentCanvas = document.getElementById(`visualizer-${songs[currentSongIndex].id}`);
+                if (currentCanvas) {
+                    currentCanvas.style.display = 'block';
+                }
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                drawVisualizer();
+            } else {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+            }
+        }
+
 
         function loadSongs(flaskSongs) {
             songs = flaskSongs;
@@ -759,6 +896,7 @@
                 audio.load();
                 updatePlayPauseButton();
                 updateSongListPlayPauseButtons();
+                updateVisualizerState(); 
             } else {
                 console.warn("Índice de canción fuera de rango.");
                 audio.src = '';
@@ -773,6 +911,7 @@
                 isPlaying = false;
                 updatePlayPauseButton();
                 updateSongListPlayPauseButtons();
+                updateVisualizerState(); 
             }
         }
 
@@ -781,6 +920,11 @@
                 flashMessage('No hay canciones para reproducir. Sube una canción primero.', 'warning');
                 return;
             }
+            
+            if (!audioContext) {
+                setupAudioContext();
+            }
+
             if (isPlaying) {
                 audio.pause();
                 isPlaying = false;
@@ -790,6 +934,7 @@
             }
             updatePlayPauseButton();
             updateSongListPlayPauseButtons();
+            updateVisualizerState(); 
         }
 
         function stopPlayback() {
@@ -800,6 +945,7 @@
             updateProgressBar();
             updateTimeDisplay();
             updateSongListPlayPauseButtons();
+            updateVisualizerState(); 
         }
 
         function updatePlayPauseButton() {
@@ -835,8 +981,11 @@
             if (newIndex < 0) {
                 newIndex = songs.length - 1;
             }
+            const wasPlaying = isPlaying;
             loadSong(newIndex);
-            if (isPlaying) audio.play();
+            if (wasPlaying) audio.play();
+            isPlaying = wasPlaying;
+            updateVisualizerState();
         });
 
         nextSongBtn.addEventListener('click', () => {
@@ -848,8 +997,11 @@
             if (newIndex >= songs.length) {
                 newIndex = 0;
             }
+            const wasPlaying = isPlaying;
             loadSong(newIndex);
-            if (isPlaying) audio.play();
+            if (wasPlaying) audio.play();
+            isPlaying = wasPlaying;
+            updateVisualizerState();
         });
 
         repeatSongBtn.addEventListener('click', () => {
@@ -905,6 +1057,10 @@
                     stopPlayback(); 
                 }
             }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
         });
 
         function updateProgressBar() {
@@ -975,7 +1131,6 @@
             deleteForm.action = `/player/delete_song/${songId}`;
         });
 
-        // NUEVO: Lógica para el modal de edición
         const editSongModal = document.getElementById('editSongModal');
         if (editSongModal) {
             editSongModal.addEventListener('show.bs.modal', function (event) {
@@ -989,14 +1144,14 @@
                 const titleInput = editSongModal.querySelector('#edit_title');
                 const artistInput = editSongModal.querySelector('#edit_artist');
                 const albumInput = editSongModal.querySelector('#edit_album');
+                const audioInput = editSongModal.querySelector('#edit_audio_file');
 
-                // Establecer la acción del formulario
                 editForm.action = `/player/edit_song/${songId}`;
 
-                // Rellenar los campos del formulario
                 titleInput.value = songTitle;
                 artistInput.value = songArtist;
                 albumInput.value = songAlbum;
+                audioInput.value = ''; 
             });
         }
 
@@ -1203,6 +1358,7 @@
             }, 5000);
         }
 
+        // CAMBIO: Lógica de playSong actualizada
         function playSong(songId) {
             const songToPlay = songs.find(s => s.id === songId);
             if (!songToPlay) {
@@ -1210,22 +1366,24 @@
                 return;
             }
 
+            // Inicializa el AudioContext en la primera interacción si no existe
+            if (!audioContext) {
+                setupAudioContext();
+            }
+
             const newIndex = songs.indexOf(songToPlay);
 
-            if (currentSongIndex === newIndex && audio.src === songToPlay.file_path) {
+            // Si es la misma canción, simplemente alterna la reproducción
+            if (currentSongIndex === newIndex && audio.src.endsWith(songToPlay.file_path)) {
                 togglePlayPause();
             } else {
+                // Si es una canción nueva, cárgala y reprodúcela
                 loadSong(newIndex);
-                audio.play().then(() => {
-                    isPlaying = true;
-                    updatePlayPauseButton();
-                    updateSongListPlayPauseButtons();
-                }).catch(error => {
-                    console.error("Error al reproducir audio:", error);
-                    isPlaying = false;
-                    updatePlayPauseButton();
-                    updateSongListPlayPauseButtons();
-                });
+                audio.play();
+                isPlaying = true;
+                updatePlayPauseButton();
+                updateSongListPlayPauseButtons();
+                updateVisualizerState();
             }
         }
 

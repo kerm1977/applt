@@ -1,56 +1,48 @@
-// Define el nombre de la caché y los archivos a cachear durante la instalación.
-// Versión de la caché para permitir actualizaciones. Cambia este número para forzar una nueva caché.
-// Hemos incrementado la versión para asegurar que los usuarios obtengan la nueva funcionalidad de notificaciones.
-const CACHE_NAME = 'la-tribu-pwa-cache-v1.0.3'; 
+// service-worker.js
 
-// Lista de archivos esenciales que se cachearán al instalar el Service Worker.
-// Asegúrate de incluir todas las rutas estáticas que tu aplicación necesita para funcionar offline.
+// Versión de la caché. Cámbiala para forzar la actualización del Service Worker y la caché.
+const CACHE_NAME = 'la-tribu-pwa-cache-v1.0.5';
+
+// Archivos esenciales para cachear durante la instalación.
 const urlsToCache = [
-    '/', // La página de inicio (que es ver_caminatas.html)
-    '/static/css/main.css', // Tu CSS personalizado
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css', // Bootstrap CSS
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css', // Font Awesome CSS
-    'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js', // Popper.js
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js', // Bootstrap JS
-    '/static/js/ckeditor.js', // CKEditor si lo usas globalmente
-    // Archivos HTML específicos que quieres que estén disponibles offline
-    '/ver_player', // La ruta para ver_player.html
-    // Imágenes por defecto (si existen y son necesarias offline)
-    '/static/images/defaults/default_avatar.png',
-    '/static/images/defaults/default_caminata.png',
-    '/static/images/defaults/default_calendar.png',
-    '/static/images/defaults/no_image.png',
-    // Íconos de la PWA (desde tu manifest.json) - Asegúrate de que estas rutas sean correctas
+    '/',
+    '/offline.html', // Página para mostrar cuando no hay conexión
+    '/static/manifest.json', // El manifest de la PWA
+    '/static/css/main.css',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css',
+    'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js',
+    // Asegúrate de que las rutas a tus imágenes y otros assets sean correctas.
     '/static/uploads/icons/icon-192x192.jpg',
     '/static/uploads/icons/icon-512x512.jpg'
-    // Agrega aquí cualquier otra ruta que necesites para el funcionamiento offline,
-    // como otras páginas HTML (ej. /login, /register, etc.), JS específicos, etc.
 ];
 
-// Evento 'install': Se dispara cuando el Service Worker se instala por primera vez.
-// Aquí abrimos una caché y agregamos todos los archivos esenciales.
+// Evento 'install': Se dispara cuando el Service Worker se instala.
 self.addEventListener('install', (event) => {
-    console.log('[Service Worker] Instalando Service Worker...');
+    console.log('[Service Worker] Instalando...');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('[Service Worker] Cacheando archivos esenciales:', urlsToCache);
+                console.log('[Service Worker] Cacheando archivos esenciales');
                 return cache.addAll(urlsToCache);
             })
             .catch((error) => {
                 console.error('[Service Worker] Falló la caché de archivos esenciales:', error);
             })
     );
+    // Forzar al nuevo Service Worker a activarse inmediatamente.
+    self.skipWaiting();
 });
 
 // Evento 'activate': Se dispara cuando el Service Worker se activa.
-// Aquí limpiamos las cachés antiguas para asegurar que solo la versión actual esté activa.
 self.addEventListener('activate', (event) => {
-    console.log('[Service Worker] Activando Service Worker...');
+    console.log('[Service Worker] Activando...');
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
+                    // Elimina las cachés antiguas que no coincidan con la versión actual.
                     if (cacheName !== CACHE_NAME) {
                         console.log('[Service Worker] Eliminando caché antigua:', cacheName);
                         return caches.delete(cacheName);
@@ -59,58 +51,55 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
-    // Asegura que el Service Worker tome el control de las páginas existentes inmediatamente.
+    // Toma el control de las páginas abiertas para que el Service Worker funcione de inmediato.
     return self.clients.claim();
 });
 
-// Evento 'fetch': Se dispara cada vez que el navegador solicita un recurso.
-// Aquí interceptamos la solicitud y decidimos si servir desde la caché o la red.
+// Evento 'fetch': Intercepta todas las solicitudes de red.
 self.addEventListener('fetch', (event) => {
-    // Solo intercepta solicitudes GET.
+    // Solo procesa solicitudes GET.
     if (event.request.method !== 'GET') {
         return;
     }
 
+    // Estrategia: Cache First, then Network, with Offline Fallback for navigation.
     event.respondWith(
         caches.match(event.request)
-            .then((response) => {
+            .then((cachedResponse) => {
                 // Si el recurso está en la caché, lo servimos desde allí.
-                if (response) {
-                    console.log('[Service Worker] Sirviendo desde caché:', event.request.url);
-                    return response;
+                if (cachedResponse) {
+                    // Opcional: Actualizar la caché en segundo plano (stale-while-revalidate)
+                    // fetch(event.request).then(networkResponse => {
+                    //     caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+                    // });
+                    return cachedResponse;
                 }
 
-                // Si no está en la caché, intentamos obtenerlo de la red.
-                console.log('[Service Worker] Intentando obtener de la red:', event.request.url);
+                // Si no está en caché, vamos a la red.
                 return fetch(event.request)
                     .then((networkResponse) => {
-                        // Si la solicitud de red fue exitosa, clonamos la respuesta
-                        // y la guardamos en la caché para futuras solicitudes.
-                        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                        // Si la respuesta es válida, la guardamos en caché para futuras solicitudes.
+                        if (networkResponse && networkResponse.status === 200) {
                             const responseToCache = networkResponse.clone();
                             caches.open(CACHE_NAME)
                                 .then((cache) => {
                                     cache.put(event.request, responseToCache);
-                                    console.log('[Service Worker] Cacheando nueva respuesta:', event.request.url);
                                 });
                         }
                         return networkResponse;
-                    })
-                    .catch(() => {
-                        // Si la red falla y el recurso no está en caché, puedes servir una página offline.
-                        console.log('[Service Worker] Falló la red y no hay caché para:', event.request.url);
-                        if (event.request.mode === 'navigate') {
-                            return caches.match('/offline.html'); // Asegúrate de tener un 'offline.html' en tu caché
-                        }
                     });
             })
+            .catch(() => {
+                // Si todo falla (sin caché y sin red), mostramos la página offline.
+                // Esto es crucial para las solicitudes de navegación.
+                if (event.request.mode === 'navigate') {
+                    return caches.match('/offline.html');
+                }
+                // Para otros tipos de solicitudes, puedes devolver una respuesta de error genérica.
+                return new Response("Contenido no disponible sin conexión.", {
+                    status: 404,
+                    statusText: "Offline"
+                });
+            })
     );
-});
-
-// Evento 'message': Permite la comunicación entre la página y el Service Worker.
-// Útil para enviar mensajes o forzar actualizaciones.
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting(); // Fuerza la activación del nuevo Service Worker
-    }
 });

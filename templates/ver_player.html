@@ -101,7 +101,7 @@
                 align-items: center;
                 justify-content: center;
                 background-color: transparent; /* Fondo transparente */
-                border: 2px solid #fccf46; /* Borde naranja más claro */
+                border: none; /* CAMBIO: Borde eliminado */
                 color: #343a40; /* Texto más oscuro para contraste */
             }
             .control-button-small:hover {
@@ -153,6 +153,16 @@
                 background-color: #dc3545;
                 color: white;
             }
+            
+            /* CAMBIO: Nuevo estilo para el botón de editar información */
+            .btn-edit-info {
+                background-color: #198754; /* Verde sólido */
+                color: white;
+                border: none;
+            }
+            .btn-edit-info:hover {
+                background-color: #157347; /* Verde más oscuro al pasar el ratón */
+            }
 
             .list-group-item .btn-outline-stop { /* Nuevo estilo para el botón de stop en la lista */
                 background-color: transparent;
@@ -202,7 +212,7 @@
             }
             .btn-warning:hover {
                 background-color: #ffc107;
-                color: white;
+                color: #212529;
             }
 
             .btn-secondary { /* Para los botones "Cancelar" en los modales */
@@ -231,16 +241,19 @@
                 transition: width 0.1s linear;
             }
             .section-title {
-                font-size: 1.8rem;
-                color: white; /* Color cambiado a blanco */
+                font-size: clamp(1.5rem, 5vw, 1.8rem); /* CAMBIO: Tamaño de fuente responsivo */
+                color: white; 
                 margin-bottom: 1.5rem;
                 padding-bottom: 0.5rem;
+                white-space: nowrap; /* CAMBIO: Evita el salto de línea */
+                overflow: hidden; /* Oculta el texto que se desborda */
+                text-overflow: ellipsis; /* Añade "..." si el texto es muy largo */
             }
 
             /* Nuevo estilo para el contenedor de la lista de canciones */
             .songs-list-card {
                 background-color: #ffc927; /* Color solicitado */
-                padding: 1.5rem;
+                padding: 1.5rem 0.5rem; /* CAMBIO: Reducido el padding horizontal */
                 border-radius: 1rem; /* Bordes redondeados para el cuadro */
                 margin-bottom: 3rem; /* Espacio debajo del cuadro */
             }
@@ -395,8 +408,18 @@
                                     <button class="btn btn-sm btn-outline-primary" id="play-button-{{ song.id }}" data-song-id="{{ song.id }}" onclick="playSong({{ song.id }})"><i class="fas fa-play"></i></button>
                                     <button class="btn btn-sm btn-outline-stop" data-song-id="{{ song.id }}" onclick="stopPlayback()" title="Detener"><i class="fas fa-stop"></i></button>
                                     
-                                    {# CORREGIDO: Verificar el rol del usuario en lugar del email #}
                                     {% if user_role == 'Superuser' %}
+                                    <!-- CAMBIO: Se cambió la clase de 'btn-outline-warning' a 'btn-edit-info' -->
+                                    <button class="btn btn-sm btn-edit-info" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editSongModal" 
+                                            data-song-id="{{ song.id }}" 
+                                            data-song-title="{{ song.title }}" 
+                                            data-song-artist="{{ song.artist or '' }}" 
+                                            data-song-album="{{ song.album or '' }}"
+                                            title="Editar Información">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
                                     <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSongModal" data-song-id="{{ song.id }}" data-song-title="{{ song.title }}"><i class="fas fa-trash-alt"></i></button>
                                     {% endif %}
                                 </div>
@@ -411,7 +434,6 @@
                 </div>
             </div>
 
-            {# CORREGIDO: Verificar el rol del usuario en lugar del email #}
             {% if user_role == 'Superuser' %}
             <h3 class="section-title">Gestión de Canciones</h3>
             <div class="row mb-5">
@@ -445,6 +467,45 @@
                 </div>
             </div>
             {% endif %}
+        </div>
+
+        <!-- Modal para Editar Información de la Canción -->
+        <div class="modal fade" id="editSongModal" tabindex="-1" aria-labelledby="editSongModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-4">
+                    <div class="modal-header bg-warning text-dark rounded-top-4">
+                        <h5 class="modal-title" id="editSongModalLabel">Editar Información de la Canción</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <!-- CAMBIO: Añadido enctype="multipart/form-data" para permitir la subida de archivos -->
+                    <form id="edit-song-form" method="POST" action="" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="edit_title" class="form-label">Título:</label>
+                                <input type="text" class="form-control rounded-pill" id="edit_title" name="edit_title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_artist" class="form-label">Artista:</label>
+                                <input type="text" class="form-control rounded-pill" id="edit_artist" name="edit_artist">
+                            </div>
+                            <div class="mb-3">
+                                <label for="edit_album" class="form-label">Álbum:</label>
+                                <input type="text" class="form-control rounded-pill" id="edit_album" name="edit_album">
+                            </div>
+                            <!-- CAMBIO: Nuevo campo para cambiar el archivo de audio -->
+                            <div class="mb-3">
+                                <label for="edit_audio_file" class="form-label">Cambiar Archivo de Audio (Opcional):</label>
+                                <input type="file" class="form-control-file rounded-pill" id="edit_audio_file" name="edit_audio_file" accept="audio/*">
+                                <small class="form-text text-muted">Si seleccionas un nuevo archivo, reemplazará al actual.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning rounded-pill">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- Modal para Confirmación de Eliminación de Canción Específica (usado por botones de la lista) -->
@@ -913,6 +974,31 @@
             const deleteForm = deleteSongModal.querySelector('#delete-song-form');
             deleteForm.action = `/player/delete_song/${songId}`;
         });
+
+        // NUEVO: Lógica para el modal de edición
+        const editSongModal = document.getElementById('editSongModal');
+        if (editSongModal) {
+            editSongModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const songId = button.getAttribute('data-song-id');
+                const songTitle = button.getAttribute('data-song-title');
+                const songArtist = button.getAttribute('data-song-artist');
+                const songAlbum = button.getAttribute('data-song-album');
+
+                const editForm = editSongModal.querySelector('#edit-song-form');
+                const titleInput = editSongModal.querySelector('#edit_title');
+                const artistInput = editSongModal.querySelector('#edit_artist');
+                const albumInput = editSongModal.querySelector('#edit_album');
+
+                // Establecer la acción del formulario
+                editForm.action = `/player/edit_song/${songId}`;
+
+                // Rellenar los campos del formulario
+                titleInput.value = songTitle;
+                artistInput.value = songArtist;
+                albumInput.value = songAlbum;
+            });
+        }
 
         const deleteSongSelectionModal = document.getElementById('deleteSongSelectionModal');
         deleteSongSelectionModal.addEventListener('show.bs.modal', function (event) {

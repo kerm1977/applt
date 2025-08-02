@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import os
 from functools import wraps
 import re
+from werkzeug.utils import secure_filename
 
 # --- INICIO DE LA CORRECCIÓN: DECORADOR DE ROL DEFINIDO LOCALMENTE ---
 
@@ -166,7 +167,7 @@ def upload_song():
         flash('Formato de archivo de audio no permitido.', 'danger')
         return redirect(url_for('player.show_player'))
 
-    filename = generate_unique_filename(audio_file.filename, current_app.config['SONGS_UPLOAD_FOLDER'])
+    filename = generate_unique_filename(secure_filename(audio_file.filename), current_app.config['SONGS_UPLOAD_FOLDER'])
     audio_save_path = os.path.join(current_app.config['SONGS_UPLOAD_FOLDER'], filename)
     os.makedirs(current_app.config['SONGS_UPLOAD_FOLDER'], exist_ok=True)
     audio_file.save(audio_save_path)
@@ -178,7 +179,7 @@ def upload_song():
             flash('El nombre del archivo de carátula contiene caracteres no permitidos.', 'danger')
             return redirect(url_for('player.show_player'))
         if allowed_image_file(cover_image_file.filename):
-            cover_filename = generate_unique_filename(cover_image_file.filename, current_app.config['COVERS_UPLOAD_FOLDER'])
+            cover_filename = generate_unique_filename(secure_filename(cover_image_file.filename), current_app.config['COVERS_UPLOAD_FOLDER'])
             cover_save_path = os.path.join(current_app.config['COVERS_UPLOAD_FOLDER'], cover_filename)
             os.makedirs(current_app.config['COVERS_UPLOAD_FOLDER'], exist_ok=True)
             cover_image_file.save(cover_save_path)
@@ -267,7 +268,7 @@ def change_cover(song_id):
             os.remove(old_cover_full_path)
 
     # Guardar la nueva carátula
-    cover_filename = generate_unique_filename(new_cover_image_file.filename, current_app.config['COVERS_UPLOAD_FOLDER'])
+    cover_filename = generate_unique_filename(secure_filename(new_cover_image_file.filename), current_app.config['COVERS_UPLOAD_FOLDER'])
     cover_save_path = os.path.join(current_app.config['COVERS_UPLOAD_FOLDER'], cover_filename)
     os.makedirs(current_app.config['COVERS_UPLOAD_FOLDER'], exist_ok=True)
     new_cover_image_file.save(cover_save_path)
@@ -356,5 +357,62 @@ def apply_cover_to_all():
         db.session.rollback()
         flash(f'Error al aplicar la carátula a todas las canciones: {e}', 'danger')
         current_app.logger.error(f"Error al aplicar carátula a todas las canciones: {e}")
+    
+    return redirect(url_for('player.show_player'))
+
+# RUTA EDITADA PARA MANEJAR CAMBIO DE ARCHIVO DE AUDIO
+@player_bp.route('/player/edit_song/<int:song_id>', methods=['POST'])
+@role_required('Superuser')
+def edit_song(song_id):
+    """
+    Ruta para editar la información de una canción y opcionalmente cambiar el archivo de audio.
+    """
+    from models import db, Song
+
+    song = Song.query.get_or_404(song_id)
+    
+    # Obtener los nuevos datos del formulario
+    new_title = request.form.get('edit_title')
+    new_artist = request.form.get('edit_artist')
+    new_album = request.form.get('edit_album')
+    new_audio_file = request.files.get('edit_audio_file') # CAMBIO: Obtener el nuevo archivo de audio
+
+    if not new_title:
+        flash('El título no puede estar vacío.', 'danger')
+        return redirect(url_for('player.show_player'))
+
+    try:
+        # CAMBIO: Lógica para manejar la actualización del archivo de audio
+        if new_audio_file and new_audio_file.filename != '':
+            if not allowed_music_file(new_audio_file.filename):
+                flash('Formato de archivo de audio no permitido.', 'danger')
+                return redirect(url_for('player.show_player'))
+
+            # 1. Eliminar el archivo de audio antiguo para ahorrar espacio
+            if song.file_path:
+                old_audio_full_path = os.path.join(current_app.root_path, 'static', song.file_path.replace('/', os.sep))
+                if os.path.exists(old_audio_full_path):
+                    os.remove(old_audio_full_path)
+                    
+            # 2. Guardar el nuevo archivo de audio
+            filename = generate_unique_filename(secure_filename(new_audio_file.filename), current_app.config['SONGS_UPLOAD_FOLDER'])
+            audio_save_path = os.path.join(current_app.config['SONGS_UPLOAD_FOLDER'], filename)
+            new_audio_file.save(audio_save_path)
+            
+            # 3. Actualizar la ruta en la base de datos
+            song.file_path = os.path.join('uploads', 'songs', filename).replace(os.sep, '/')
+
+        # Actualizar la información de texto
+        song.title = new_title
+        song.artist = new_artist
+        song.album = new_album
+        
+        db.session.commit()
+        flash(f'Canción "{song.title}" actualizada con éxito.', 'success')
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al actualizar la canción: {e}', 'danger')
+        current_app.logger.error(f"Error al actualizar la canción {song_id}: {e}")
     
     return redirect(url_for('player.show_player'))

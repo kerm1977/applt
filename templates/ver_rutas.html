@@ -120,7 +120,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
         .fab-button-export.pdf { background-color: #dc3545; } /* Rojo para PDF */
-        /* .fab-button-export.jpg { background-color: #17a2b8; } */ /* Info azul para JPG (ELIMINADO) */
         .fab-button-export.txt { background-color: #6c757d; } /* Gris para TXT */
 
         /* Ajuste de posición para los botones de exportación para que no choquen con el de añadir */
@@ -148,7 +147,6 @@
         }
         /* Estilos para el separador de mes */
         .month-separator {
-            /* background-color: #e9ecef; */ /* Eliminado el color de fondo */
             padding: 8px;
             border-radius: 6px;
             margin-top: 25px; /* Margen superior para separar de la lista anterior */
@@ -168,44 +166,37 @@
     </style>
 
 <div class="container mt-4">
-    <h1 class="main-title text-center mb-4 text-dark">Rutas Disponibles</h1> {# CAMBIO: text-warning a text-dark #}
+    <h1 class="main-title text-center mb-4 text-dark">Rutas Disponibles</h1>
 
     {# Formulario de filtro por categoría #}
     <div class="mb-4">
         <form action="{{ url_for('rutas.ver_rutas') }}" method="GET" class="d-flex align-items-center">
-            <label for="categoria-filter" class="form-label me-2 mb-0">Buscar por:</label> {# CAMBIO DE TEXTO #}
+            <label for="categoria-filter" class="form-label me-2 mb-0">Buscar por:</label>
             <select class="form-select me-2" id="categoria-filter" name="categoria" onchange="this.form.submit()">
-                {# Iterar sobre las categorías de búsqueda definidas en Python #}
                 {% for categoria in categorias_busqueda %}
                     {% if categoria == 'Otros' %}
-                        <option value="{{ categoria }}" disabled class="font-weight-bold">{{ categoria }}</option> {# Título deshabilitado #}
+                        <option value="{{ categoria }}" disabled class="font-weight-bold">{{ categoria }}</option>
                     {% else %}
                         <option value="{{ categoria }}" {% if provincia_seleccionada == categoria %}selected{% endif %}>{{ categoria }}</option>
                     {% endif %}
                 {% endfor %}
             </select>
-            {# Puedes añadir un botón de búsqueda si no quieres que se envíe automáticamente en el cambio #}
-            {# <button type="submit" class="btn btn-primary">Buscar</button> #}
         </form>
     </div>
 
-    {# Iterar sobre las categorías en el orden deseado y mostrar las rutas #}
-    {% set has_any_routes = false %} {# Variable para verificar si hay alguna ruta en total #}
+    {% set has_any_routes = false %}
     {% for categoria_display in categorias_busqueda %}
-        {# Solo procesar si la categoría no es "Todas las Categorías" #}
         {% if categoria_display != 'Todas las Categorías' %}
             {% set rutas_en_categoria = rutas_por_categoria.get(categoria_display) %}
 
             {% if categoria_display == 'Otros' %}
-                {# Mostrar el título "Otros" solo si hay rutas de "Internacional", "Caminatas Programadas" o "Caminatas por Reconocer" #}
                 {% if rutas_por_categoria.get('Internacional') or rutas_por_categoria.get('Caminatas Programadas') or rutas_por_categoria.get('Caminatas por Reconocer') %}
                     <div class="mb-5">
-                        <div class="card-header-category other-category-title-bg mt-5 text-dark"> {# Añadida la clase other-category-title-bg y text-dark #}
-                            <h1 class="text-center text-dark">{{ categoria_display }}</h1> {# CAMBIO: h2 a h1 y text-dark #}
+                        <div class="card-header-category other-category-title-bg mt-5 text-dark">
+                            <h1 class="text-center text-dark">{{ categoria_display }}</h1>
                             <hr>
                         </div>
                     </div>
-                    {# Iterar sobre los subgrupos de "Otros" si existen #}
                     {% if rutas_por_categoria.get('Internacional') and rutas_por_categoria.get('Internacional').get('rutas_sin_fecha') %}
                         <div class="mb-4">
                             <div class="card-header-category mt-5">
@@ -262,7 +253,6 @@
                         </div>
                     {% endif %}
 
-                    {# Manejo de Caminatas Programadas dentro de "Otros", agrupadas por mes #}
                     {% if rutas_por_categoria.get('Caminatas Programadas') %}
                         <div class="mb-4">
                             <div class="card-header-category mt-5">
@@ -270,7 +260,7 @@
                                 <hr>
                             </div>
                             {% for mes_anio, rutas_mes in rutas_por_categoria.get('Caminatas Programadas').items() %}
-                                {% if mes_anio != 'rutas_sin_fecha' %} {# Excluir el grupo de rutas sin fecha si existe #}
+                                {% if mes_anio != 'rutas_sin_fecha' %}
                                     <div class="month-separator text-end text-warning">{{ mes_anio }}</div>
                                     
                                     <div>
@@ -294,7 +284,6 @@
                                     </div>
                                 {% endif %}
                             {% endfor %}
-                            {# Si hay rutas de "Caminatas Programadas" sin fecha, mostrarlas al final de su sección #}
                             {% if rutas_por_categoria.get('Caminatas Programadas').get('rutas_sin_fecha') %}
                              
                                     <ul class="list-unstyled">
@@ -318,14 +307,14 @@
                             {% endif %}
                         </div>
                     {% endif %}
+                {% endif %}
 
-                {% endif %} {# Fin del if que muestra el título "Otros" #}
-
-            {% elif rutas_en_categoria and rutas_en_categoria.get('rutas_sin_fecha') %} {# Para categorías que no son "Otros" #}
-                {% set has_any_routes = true %} {# Se encontraron rutas en una categoría válida #}
+            {# CORRECCIÓN: Se añade una condición para que este bloque no se ejecute para las categorías que ya se manejan dentro de "Otros" #}
+            {% elif categoria_display not in ['Otros', 'Internacional', 'Caminatas Programadas', 'Caminatas por Reconocer'] and rutas_en_categoria and rutas_en_categoria.get('rutas_sin_fecha') %}
+                {% set has_any_routes = true %}
                 <div class="mb-4">
-                    <div class="card-header-category mt-5"> {# Sin la clase other-category-title-bg, y sin text-dark aquí #}
-                        <h2 class="text-center text-dark">{{ categoria_display }}</h2> {# CAMBIO: text-dark #}
+                    <div class="card-header-category mt-5">
+                        <h2 class="text-center text-dark">{{ categoria_display }}</h2>
                         <hr>
                     </div>
                     <div>
@@ -333,13 +322,11 @@
                             {% for ruta in rutas_en_categoria.get('rutas_sin_fecha') %}
                                 <li class="route-item">
                                     <div>
-                                        {# Mostrar nombre de ruta - fecha - ¢precio, solo si existen #}
                                         <span class="me-2 text-muted">{{ loop.index }}.</span>
-                                        <a href="{{ url_for('rutas.detalle_ruta', ruta_id=ruta.id) }}" class="route-name"> {# ELIMINADO: text-warning #}
+                                        <a href="{{ url_for('rutas.detalle_ruta', ruta_id=ruta.id) }}" class="route-name">
                                             {{ ruta.nombre }}
                                             {% if ruta.fecha %} - {{ ruta.fecha.strftime('%d/%m/%y') }}{% endif %}
                                             {% if ruta.precio is not none %} - ¢{{ ruta.precio|int }}{% endif %}
-                                            {# ICONO DE MAPA: Mostrar si la ruta tiene algún archivo de mapa #}
                                             {% if ruta.gpx_file_url or ruta.kml_file_url or ruta.kmz_file_url %}
                                                 <i class="fas fa-map-marker-alt ms-2 text-primary" title="Esta ruta tiene un mapa asociado"></i>
                                             {% endif %}
@@ -354,7 +341,6 @@
         {% endif %}
     {% endfor %}
 
-    {# Mostrar mensaje si no se encontraron rutas en ninguna categoría #}
     {% if not rutas_por_categoria and provincia_seleccionada == 'Todas las Categorías' %}
         <div class="alert alert-info text-center" role="alert">
             No hay rutas disponibles. ¡Crea una nueva!
@@ -368,7 +354,7 @@
 
     {% if session.get('role') == 'Superuser' %}
     <a href="{{ url_for('rutas.crear_ruta') }}" class="btn btn-success btn-add-route" title="Crear nueva ruta">
-        <i class="fas fa-plus"></i> {# Icono de más #}
+        <i class="fas fa-plus"></i>
     </a>
     {% endif %}
 </div>
@@ -385,7 +371,6 @@
     <a href="{{ url_for('rutas.exportar_todas_rutas_pdf', categoria=provincia_seleccionada) }}" class="fab-button-export pdf" title="Exportar a PDF">
         <i class="fas fa-file-pdf"></i>
     </a>
-    {# Botón de exportar a JPG ELIMINADO #}
     <a href="{{ url_for('rutas.exportar_todas_rutas_txt', categoria=provincia_seleccionada) }}" class="fab-button-export txt" title="Exportar a TXT">
         <i class="fas fa-file-alt"></i>
     </a>
@@ -395,7 +380,6 @@
 
 {% block scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-    {# Se elimina la carga de timezone_converter.js ya que no se usa para las fechas de ruta #}
     <script>
         // Opcional: Script para añadir interactividad si es necesario
     </script>
